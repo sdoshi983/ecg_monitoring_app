@@ -10,6 +10,6 @@ class EcgPlot extends StatefulWidget {
 class _EcgPlotState extends State<EcgPlot> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Container(color: Colors.white,);
   }
 }
