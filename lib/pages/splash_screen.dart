@@ -1,4 +1,7 @@
+import 'package:ecg_monitor/pages/ecg_plot.dart';
 import 'package:flutter/material.dart';
+import 'package:ecg_monitor/helpers/constant.dart';
+import 'package:lottie/lottie.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -10,14 +13,30 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     //set time to load the new page
     Future.delayed(Duration(seconds: 4), () {
-      // Navigator.pushReplacement(
-      //     context, MaterialPageRoute(builder: (context) => Main()));
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => EcgPlot()));
     });
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      backgroundColor: themeColor,
+      body: Container(
+        alignment: Alignment.center,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(
+                height: 300,
+                width: 300,
+                child: Lottie.asset('assets/heart.json')),
+            SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
   }
 }
