@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "253636812189",
+    "firebase_url": "https://ecg2firebase-default-rtdb.firebaseio.com",
+    "project_id": "ecg2firebase",
+    "storage_bucket": "ecg2firebase.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:253636812189:android:d7e68d193692777a8b6374",
+        "android_client_info": {
+          "package_name": "com.example.ecg_monitor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "253636812189-lhnvmns9bg3trtcgm3rqogj59vv4rvfu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ecg_monitor",
+            "certificate_hash": "31895318e09031286c7a95973740aaf152b76170"
+          }
+        },
+        {
+          "client_id": "253636812189-vid8espj52hnvki0te9kn693ms967c6a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyaRHY2e-QqonwTwd076W9LhohmPsYaR0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "253636812189-vid8espj52hnvki0te9kn693ms967c6a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
