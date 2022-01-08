@@ -12,10 +12,10 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     //set time to load the new page
-    Future.delayed(Duration(seconds: 4), () {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => EcgPlot()));
-    });
+    // Future.delayed(Duration(seconds: 4), () {
+    //   Navigator.pushReplacement(
+    //       context, MaterialPageRoute(builder: (context) => EcgPlot()));
+    // });
     super.initState();
   }
 
@@ -32,7 +32,12 @@ class _SplashScreenState extends State<SplashScreen> {
             SizedBox(
                 height: 300,
                 width: 300,
-                child: Lottie.asset('assets/heart.json')),
+                child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(3000),
+                    ),
+                    child: Lottie.asset('assets/heart.json'))),
             SizedBox(height: 20),
           ],
         ),
