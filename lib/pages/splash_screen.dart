@@ -2,6 +2,8 @@ import 'package:ecg_monitor/pages/ecg_plot.dart';
 import 'package:flutter/material.dart';
 import 'package:ecg_monitor/helpers/constant.dart';
 import 'package:lottie/lottie.dart';
+import 'package:firebase_database/firebase_database.dart';
+
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -9,6 +11,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  FirebaseDatabase database = FirebaseDatabase.instance;
   @override
   void initState() {
     //set time to load the new page
