@@ -25,6 +25,11 @@ class _EcgPlotState extends State<EcgPlot> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: SfCartesianChart(
+          legend: Legend(
+            offset: Offset(-20, 90),
+            isVisible: true,
+            title: LegendTitle(text: "HR 60 BPM", textStyle: TextStyle(fontWeight: FontWeight.bold))
+          ),
             series: <LineSeries<LiveData, int>>[
           LineSeries<LiveData, int>(
             onRendererCreated: (ChartSeriesController controller) {
@@ -44,7 +49,7 @@ class _EcgPlotState extends State<EcgPlot> {
             primaryYAxis: NumericAxis(
                 axisLine: const AxisLine(width: 0),
                 majorTickLines: const MajorTickLines(size: 0),
-                title: AxisTitle(text: 'Internet speed (Mbps)'))));
+                title: AxisTitle(text: 'Beats'))));
   }
 
   int time = 19;
