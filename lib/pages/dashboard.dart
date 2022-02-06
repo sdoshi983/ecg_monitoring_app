@@ -1,3 +1,4 @@
+import 'package:ecg_monitor/pages/ecg_plot.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -16,12 +17,14 @@ class _DashboardState extends State<Dashboard> {
         ),
       ),
       body: Container(
-        child: ElevatedButton(
-          onPressed: (){
-            // Navi
-          },
-          child: Text(
-            'Start',
+        child: Center(
+          child: ElevatedButton(
+            onPressed: (){
+              Navigator.push(context, MaterialPageRoute(builder: (context) => EcgPlot()));
+            },
+            child: Text(
+              'Start',
+            ),
           ),
         ),
       ),
