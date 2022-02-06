@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'dart:math' as math;
 
@@ -11,54 +12,142 @@ class EcgPlot extends StatefulWidget {
 }
 
 class _EcgPlotState extends State<EcgPlot> {
-  List<LiveData> chartData;
+  List<LiveData> chartData, previousData = [], nextData = [];
   ChartSeriesController _chartSeriesController;
+  TooltipBehavior _tooltipBehavior;
 
   @override
   void initState() {
     chartData = getChartData();
-    Timer.periodic(const Duration(seconds: 1), updateDataSource);
+    Timer.periodic(const Duration(milliseconds: 1), updateDataSource);
+    _tooltipBehavior = TooltipBehavior(enable: true);
     super.initState();
   }
 
+  void func() {
+    Timer.periodic(const Duration(milliseconds: 1), updateDataSource);
+
+  }
+
+  void onPreviousButtonTapped(){
+    var length = previousData.length;
+    if(length > 0){
+      var lastElement = previousData.removeAt(length - 1);
+      chartData.insert(0, lastElement);
+      var chartDataLength = chartData.length;
+      lastElement = chartData.removeAt(chartDataLength - 1);
+      nextData.insert(0, lastElement);
+    }
+    _chartSeriesController.updateDataSource(
+        addedDataIndex: 0, removedDataIndex: chartData.length - 1);
+    // Timer.periodic(const Duration(seconds: 1), updateDataSource);
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SfCartesianChart(
-          legend: Legend(
-            offset: Offset(-20, 90),
-            isVisible: true,
-            title: LegendTitle(text: "HR 60 BPM", textStyle: TextStyle(fontWeight: FontWeight.bold))
-          ),
-            series: <LineSeries<LiveData, int>>[
-          LineSeries<LiveData, int>(
-            onRendererCreated: (ChartSeriesController controller) {
-              _chartSeriesController = controller;
-            },
-            dataSource: chartData,
-            color: const Color.fromRGBO(192, 108, 132, 1),
-            xValueMapper: (LiveData sales, _) => sales.time,
-            yValueMapper: (LiveData sales, _) => sales.speed,
-          )
-        ],
-            primaryXAxis: NumericAxis(
-                majorGridLines: const MajorGridLines(width: 0),
-                edgeLabelPlacement: EdgeLabelPlacement.shift,
-                interval: 3,
-                title: AxisTitle(text: 'Time (seconds)')),
-            primaryYAxis: NumericAxis(
-                axisLine: const AxisLine(width: 0),
-                majorTickLines: const MajorTickLines(size: 0),
-                title: AxisTitle(text: 'Beats'))));
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          // crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: GestureDetector(
+                onHorizontalDragStart: (details) {
+                  print('start' + details.globalPosition.toString());
+                },
+                onHorizontalDragEnd: (details) {
+                  print('end');
+                },
+                onHorizontalDragCancel: () {
+                  print('cancel');
+                },
+                onHorizontalDragDown: (details) {
+                  print('down');
+                },
+                onHorizontalDragUpdate: (details) {
+                  print('update');
+                },
+                child: SfCartesianChart(
+                  // onChartTouchInteractionMove: (args){
+                  //   chartData.add(LiveData(time++, (7)));
+                  //   chartData.removeAt(0);
+                  //   _chartSeriesController.updateDataSource(
+                  //       addedDataIndex: chartData.length - 1, removedDataIndex: 0);
+                  // },
+                  tooltipBehavior: _tooltipBehavior,
+                  // legend: Legend(
+                  //     offset: Offset(-20, 90),
+                  //     isVisible: true,
+                  //     title: LegendTitle(
+                  //         text: "HR 60 BPM",
+                  //         textStyle: TextStyle(fontWeight: FontWeight.bold))),
+                  series: <LineSeries<LiveData, int>>[
+                    LineSeries<LiveData, int>(
+                      onRendererCreated: (ChartSeriesController controller) {
+                        _chartSeriesController = controller;
+                      },
+                      dataSource: chartData,
+                      color: const Color.fromRGBO(192, 108, 132, 1),
+                      xValueMapper: (LiveData sales, _) => sales.time,
+                      yValueMapper: (LiveData sales, _) => sales.speed,
+                    )
+                  ],
+                  primaryXAxis: NumericAxis(
+                      majorGridLines: const MajorGridLines(width: 2),
+                      edgeLabelPlacement: EdgeLabelPlacement.shift,
+                      interval: 1,
+                      title: AxisTitle(text: 'Time (seconds)')),
+                  // primaryYAxis: NumericAxis(
+                  //   axisLine: const AxisLine(width: ),
+                  //   majorTickLines: const MajorTickLines(size: 0),
+                  //   title: AxisTitle(text: 'Beats'),
+                  // ),
+                ),
+              ),
+            ),
+            ElevatedButton(
+
+              onPressed: () {
+                onPreviousButtonTapped();
+              },
+              child: Icon(Icons.skip_previous),
+            ),
+            ElevatedButton(
+
+              onPressed: () {
+                func();
+                // onPreviousButtonTapped();
+              },
+              child: Icon(Icons.add),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   int time = 19;
   void updateDataSource(Timer timer) {
-    chartData.add(LiveData(time++, (math.Random().nextInt(60) + 30)));
-    chartData.removeAt(0);
-    _chartSeriesController.updateDataSource(
-        addedDataIndex: chartData.length - 1, removedDataIndex: 0);
-  }
+    // print(time);
+    if(nextData.length > 0){
+      var data = nextData.removeAt(0);
+      chartData.add(data);
+    }
+    else{
+      chartData.add(LiveData(time++, (math.Random().nextInt(60) + 30)));
+    }
+    LiveData data = chartData.removeAt(0);
+      previousData.add(data);
+      var length = previousData.length;
+      if (length == 20){
+        ;//previousData.removeAt(0);
+      }
+      _chartSeriesController.updateDataSource(
+          addedDataIndex: chartData.length - 1, removedDataIndex: 0);
+    }
+
+
+
 }
 
 class SalesData {
