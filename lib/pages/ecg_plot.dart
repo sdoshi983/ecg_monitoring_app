@@ -7,6 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'dart:math' as math;
 
+import 'dashboard.dart';
+
 class EcgPlot extends StatefulWidget {
   @override
   _EcgPlotState createState() => _EcgPlotState();
@@ -44,29 +46,18 @@ class _EcgPlotState extends State<EcgPlot> {
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          // crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onHorizontalDragStart: (details) {
-                  print('start' + details.globalPosition.toString());
-                },
-                onHorizontalDragEnd: (details) {
-                  print('end');
-                },
-                onHorizontalDragCancel: () {
-                  print('cancel');
-                },
-                onHorizontalDragDown: (details) {
-                  print('down');
-                },
-                onHorizontalDragUpdate: (details) {
-                  print('update');
-                },
+    return WillPopScope(
+      onWillPop: (){
+        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Dashboard()), (route) => false);
+
+      },
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            // crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
                 child: SfCartesianChart(
                   // onChartTouchInteractionMove: (args){
                   //   chartData.add(LiveData(time++, (7)));
@@ -104,39 +95,38 @@ class _EcgPlotState extends State<EcgPlot> {
                   // ),
                 ),
               ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
 
-                  onPressed: () {
-                    onPreviousButtonTapped();
-                  },
-                  child: Icon(Icons.skip_previous),
-                ),
-                SizedBox(width: 10,),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(primary: Colors.red),
-                  onPressed: () {
-                    // func();
-                    // onPreviousButtonTapped();
-                  },
-                  child: Icon(Icons.stop_circle),
-                ),
-                SizedBox(width: 10,),
-                ElevatedButton(
+                    onPressed: () {
+                      onPreviousButtonTapped();
+                    },
+                    child: Icon(Icons.skip_previous),
+                  ),
+                  SizedBox(width: 10,),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(primary: Colors.red),
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Dashboard()), (route) => false);
+                    },
+                    child: Icon(Icons.stop_circle),
+                  ),
+                  SizedBox(width: 10,),
+                  ElevatedButton(
 
-                  onPressed: () {
-                    // func();
-                    // onPreviousButtonTapped();
-                  },
-                  child: Icon(Icons.skip_next),
-                ),
+                    onPressed: () {
+                      // func();
+                      // onPreviousButtonTapped();
+                    },
+                    child: Icon(Icons.skip_next),
+                  ),
 
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
