@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'dart:math' as math;
 
@@ -19,14 +20,9 @@ class _EcgPlotState extends State<EcgPlot> {
   @override
   void initState() {
     chartData = getChartData();
-    Timer.periodic(const Duration(milliseconds: 1), updateDataSource);
+    Timer.periodic(const Duration(seconds: 1), updateDataSource);
     _tooltipBehavior = TooltipBehavior(enable: true);
     super.initState();
-  }
-
-  void func() {
-    Timer.periodic(const Duration(milliseconds: 1), updateDataSource);
-
   }
 
   void onPreviousButtonTapped(){
@@ -44,6 +40,10 @@ class _EcgPlotState extends State<EcgPlot> {
   }
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -105,20 +105,36 @@ class _EcgPlotState extends State<EcgPlot> {
                 ),
               ),
             ),
-            ElevatedButton(
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
 
-              onPressed: () {
-                onPreviousButtonTapped();
-              },
-              child: Icon(Icons.skip_previous),
-            ),
-            ElevatedButton(
+                  onPressed: () {
+                    onPreviousButtonTapped();
+                  },
+                  child: Icon(Icons.skip_previous),
+                ),
+                SizedBox(width: 10,),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(primary: Colors.red),
+                  onPressed: () {
+                    // func();
+                    // onPreviousButtonTapped();
+                  },
+                  child: Icon(Icons.stop_circle),
+                ),
+                SizedBox(width: 10,),
+                ElevatedButton(
 
-              onPressed: () {
-                func();
-                // onPreviousButtonTapped();
-              },
-              child: Icon(Icons.add),
+                  onPressed: () {
+                    // func();
+                    // onPreviousButtonTapped();
+                  },
+                  child: Icon(Icons.skip_next),
+                ),
+
+              ],
             ),
           ],
         ),
