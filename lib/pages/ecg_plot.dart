@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ecg_monitor/helpers/constant.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -99,7 +100,7 @@ class _EcgPlotState extends State<EcgPlot> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
-
+                    style: ElevatedButton.styleFrom(primary: deepPurple),
                     onPressed: () {
                       onPreviousButtonTapped();
                     },
@@ -115,6 +116,7 @@ class _EcgPlotState extends State<EcgPlot> {
                   ),
                   SizedBox(width: 10,),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(primary: deepPurple),
 
                     onPressed: () {
                       // func();
