@@ -4,6 +4,8 @@ import 'package:ecg_monitor/helpers/constant.dart';
 import 'package:lottie/lottie.dart';
 import 'package:firebase_database/firebase_database.dart';
 
+import 'dashboard.dart';
+
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -16,12 +18,12 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     //set time to load the new page
-    // Future.delayed(Duration(seconds: 4), () {
-    //   Navigator.pushReplacement(
-    //       context, MaterialPageRoute(builder: (context) => EcgPlot()));
-    // });
+    Future.delayed(Duration(seconds: 4), () {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => Dashboard()));
+    });
     super.initState();
-    func();
+    // func();
     }
 
   Future<void> func() async{
