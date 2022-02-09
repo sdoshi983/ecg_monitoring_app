@@ -7,25 +7,54 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'dart:math' as math;
+import 'package:firebase_database/firebase_database.dart';
 
 import 'dashboard.dart';
 
 class EcgPlot extends StatefulWidget {
+  EcgPlot({this.efficiency});
+  double efficiency;
   @override
   _EcgPlotState createState() => _EcgPlotState();
 }
 
 class _EcgPlotState extends State<EcgPlot> {
-  List<LiveData> chartData, previousData = [], nextData = [];
+  List<LiveData> chartData = [], previousData = [], nextData = [];
   ChartSeriesController _chartSeriesController;
   TooltipBehavior _tooltipBehavior;
 
+  FirebaseDatabase database = FirebaseDatabase.instance;
+  DatabaseReference ref = FirebaseDatabase.instance.ref("pulse");
+  bool isFirstValueSaved = false;
+  double firstValue = 0.0;
+
   @override
   void initState() {
-    chartData = getChartData();
-    Timer.periodic(const Duration(seconds: 1), updateDataSource);
+    // chartData = getChartData();
+    // Timer.periodic(const Duration(seconds: 1), updateDataSource);
     _tooltipBehavior = TooltipBehavior(enable: true);
+    getData();
     super.initState();
+  }
+
+  Future<void> getData() async{
+    Stream<DatabaseEvent> stream = ref.onValue;
+    stream.listen((event) {
+      int intPulse = event.snapshot.value;
+      double pulse = intPulse.toDouble();
+      // print("shrey " + pulse.toString());
+      updateDataSource(pulse);
+      print("size: " + chartData.length.toString());
+      if(isFirstValueSaved == false){
+        firstValue = pulse;
+        isFirstValueSaved = true;
+      }else{
+        // double dPulse = pulse;
+        if(pulse >= firstValue + firstValue * (widget.efficiency / 10)){
+          print('alert');
+        }
+      }
+    });
   }
 
   void onPreviousButtonTapped(){
@@ -73,8 +102,8 @@ class _EcgPlotState extends State<EcgPlot> {
                   //     title: LegendTitle(
                   //         text: "HR 60 BPM",
                   //         textStyle: TextStyle(fontWeight: FontWeight.bold))),
-                  series: <LineSeries<LiveData, int>>[
-                    LineSeries<LiveData, int>(
+                  series: <LineSeries<LiveData, double>>[
+                    LineSeries<LiveData, double>(
                       onRendererCreated: (ChartSeriesController controller) {
                         _chartSeriesController = controller;
                       },
@@ -134,17 +163,19 @@ class _EcgPlotState extends State<EcgPlot> {
     );
   }
 
-  int time = 19;
-  void updateDataSource(Timer timer) {
+  double time = 0.0;
+  void updateDataSource(double pulse) {
     // print(time);
     if(nextData.length > 0){
       var data = nextData.removeAt(0);
       chartData.add(data);
     }
     else{
-      chartData.add(LiveData(time++, (math.Random().nextInt(60) + 30)));
+      // chartData.add(LiveData((time += 1.0), (math.Random().nextInt(60) + 30).toDouble()));
+      chartData.add(LiveData((time += 1.0), pulse));
     }
-    LiveData data = chartData.removeAt(0);
+    if(chartData.length >= 5){
+      LiveData data = chartData.removeAt(0);
       previousData.add(data);
       var length = previousData.length;
       if (length == 20){
@@ -152,22 +183,26 @@ class _EcgPlotState extends State<EcgPlot> {
       }
       _chartSeriesController.updateDataSource(
           addedDataIndex: chartData.length - 1, removedDataIndex: 0);
+    }else {
+      _chartSeriesController.updateDataSource(
+          addedDataIndex: chartData.length - 1);
     }
+  }
 
 
 
 }
 
-class SalesData {
-  SalesData(this.year, this.sales);
-  final String year;
-  final double sales;
-}
+// class SalesData {
+//   SalesData(this.year, this.sales);
+//   final String year;
+//   final double sales;
+// }
 
 class LiveData {
   LiveData(this.time, this.speed);
-  final int time;
-  final num speed;
+  double time;
+  double speed;
 }
 
 List<LiveData> getChartData() {
