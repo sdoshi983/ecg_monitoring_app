@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-int dropDownValue = 10;
+double dropDownValue = 10.0;
 class Dashboard extends StatefulWidget {
   @override
   _DashboardState createState() => _DashboardState();
@@ -35,7 +35,7 @@ class _DashboardState extends State<Dashboard> {
                 style: ElevatedButton.styleFrom(primary: deepPurple),
                 onPressed: () {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => EcgPlot()));
+                      MaterialPageRoute(builder: (context) => EcgPlot(efficiency: dropDownValue,)));
                 },
                 child: Text(
                   'Start',
@@ -48,7 +48,7 @@ class _DashboardState extends State<Dashboard> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Select accuracy: ', style: textTheme.subtitle1,),
+                  Text('Select efficiency: ', style: textTheme.subtitle1,),
                   AccuracyDropDown()
                 ],
               ),

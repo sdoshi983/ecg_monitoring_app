@@ -13,8 +13,9 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  FirebaseDatabase database = FirebaseDatabase.instance;
-  DatabaseReference ref = FirebaseDatabase.instance.ref();
+  // FirebaseDatabase database = FirebaseDatabase.instance;
+  // DatabaseReference ref = FirebaseDatabase.instance.ref("pulse");
+
   @override
   void initState() {
     //set time to load the new page
@@ -26,12 +27,13 @@ class _SplashScreenState extends State<SplashScreen> {
     // func();
     }
 
-  Future<void> func() async{
-    Stream<DatabaseEvent> stream = ref.onValue;
-    stream.listen((event) {
-      print(event.snapshot.value);
-    });
-  }
+  // Future<void> func() async{
+  //   Stream<DatabaseEvent> stream = ref.onValue;
+  //   stream.listen((event) {
+  //     var object = event.snapshot.value;
+  //     print(object.runtimeType);
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
