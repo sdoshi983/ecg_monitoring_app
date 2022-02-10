@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.ecg_monitor">
    <application
-        android:label="ecg_monitor"
+        android:label="Fit Beats"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
