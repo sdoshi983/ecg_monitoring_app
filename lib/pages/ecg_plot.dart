@@ -24,9 +24,11 @@ class _EcgPlotState extends State<EcgPlot> {
   TooltipBehavior _tooltipBehavior;
 
   FirebaseDatabase database = FirebaseDatabase.instance;
-  DatabaseReference ref = FirebaseDatabase.instance.ref("pulse");
+  DatabaseReference ref = FirebaseDatabase.instance.ref("data");
+  DatabaseReference pulseRef = FirebaseDatabase.instance.ref("pulse");
   bool isFirstValueSaved = false;
   double firstValue = 0.0;
+  double pulseRate = 0.0;
 
   @override
   void initState() {
@@ -34,32 +36,44 @@ class _EcgPlotState extends State<EcgPlot> {
     // Timer.periodic(const Duration(seconds: 1), updateDataSource);
     _tooltipBehavior = TooltipBehavior(enable: true);
     getData();
+    getPulse();
     super.initState();
   }
 
-  Future<void> getData() async{
+  Future<void> getData() async {
     Stream<DatabaseEvent> stream = ref.onValue;
     stream.listen((event) {
       int intPulse = event.snapshot.value;
       double pulse = intPulse.toDouble();
-      // print("shrey " + pulse.toString());
+      print("shrey " + pulse.toString());
       updateDataSource(pulse);
-      print("size: " + chartData.length.toString());
-      if(isFirstValueSaved == false){
+      // print("size: " + chartData.length.toString());
+      if (isFirstValueSaved == false) {
         firstValue = pulse;
         isFirstValueSaved = true;
-      }else{
-        // double dPulse = pulse;
-        if(pulse >= firstValue + firstValue * (widget.efficiency / 10)){
+      } else {
+        if (pulse >= firstValue + firstValue * (widget.efficiency / 10)) {
+          // double dPulse = pulse;
           print('alert');
         }
       }
     });
   }
 
-  void onPreviousButtonTapped(){
+  Future<void> getPulse() async {
+    Stream<DatabaseEvent> stream = pulseRef.onValue;
+    stream.listen((event) {
+      int intPulse = event.snapshot.value;
+      double pulse = intPulse.toDouble();
+      setState(() {
+        pulseRate = pulse;
+      });
+    });
+  }
+
+  void onPreviousButtonTapped() {
     var length = previousData.length;
-    if(length > 0){
+    if (length > 0) {
       var lastElement = previousData.removeAt(length - 1);
       chartData.insert(0, lastElement);
       var chartDataLength = chartData.length;
@@ -70,16 +84,19 @@ class _EcgPlotState extends State<EcgPlot> {
         addedDataIndex: 0, removedDataIndex: chartData.length - 1);
     // Timer.periodic(const Duration(seconds: 1), updateDataSource);
   }
+
   @override
   Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    var textTheme = Theme.of(context).textTheme;
+
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
     return WillPopScope(
-      onWillPop: (){
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Dashboard()), (route) => false);
-
+      onWillPop: () {
+        showAlertDialog(context);
       },
       child: Scaffold(
         body: Padding(
@@ -125,36 +142,65 @@ class _EcgPlotState extends State<EcgPlot> {
                   // ),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: deepPurple),
-                    onPressed: () {
-                      onPreviousButtonTapped();
-                    },
-                    child: Icon(Icons.skip_previous),
-                  ),
-                  SizedBox(width: 10,),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: Colors.red),
-                    onPressed: () {
-                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Dashboard()), (route) => false);
-                    },
-                    child: Icon(Icons.stop_circle),
-                  ),
-                  SizedBox(width: 10,),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(primary: deepPurple),
-
-                    onPressed: () {
-                      // func();
-                      // onPreviousButtonTapped();
-                    },
-                    child: Icon(Icons.skip_next),
-                  ),
-
-                ],
+              Padding(
+                padding: const EdgeInsets.only(left: 12.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'PULSE RATE:   ',
+                          style: textTheme.subtitle1,
+                        ),
+                        Text(
+                          pulseRate.toString(),
+                          style: textTheme.subtitle1.copyWith(
+                              color: deepPurple,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 30),
+                        ),
+                      ],
+                    ),
+                    // SizedBox(width: width * 0.13,),
+                    Row(
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(primary: deepPurple),
+                          onPressed: () {
+                            onPreviousButtonTapped();
+                          },
+                          child: Icon(Icons.skip_previous),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(primary: Colors.red),
+                          onPressed: () {
+                            // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Dashboard()), (route) => false);
+                            showAlertDialog(context);
+                          },
+                          child: Icon(Icons.stop_circle),
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(primary: deepPurple),
+                          onPressed: () {
+                            // func();
+                            // onPreviousButtonTapped();
+                          },
+                          child: Icon(Icons.skip_next),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      width: width * 0.2,
+                    )
+                  ],
+                ),
               ),
             ],
           ),
@@ -166,31 +212,69 @@ class _EcgPlotState extends State<EcgPlot> {
   double time = 0.0;
   void updateDataSource(double pulse) {
     // print(time);
-    if(nextData.length > 0){
+    if (nextData.length > 0) {
       var data = nextData.removeAt(0);
       chartData.add(data);
-    }
-    else{
-      // chartData.add(LiveData((time += 1.0), (math.Random().nextInt(60) + 30).toDouble()));
+    } else {
+      // chartData.add(LiveData((time++), (math.Random().nextInt(60) + 30).toDouble()));
       chartData.add(LiveData((time += 1.0), pulse));
     }
-    if(chartData.length >= 5){
+    if (chartData.length >= 35) {
       LiveData data = chartData.removeAt(0);
       previousData.add(data);
       var length = previousData.length;
-      if (length == 20){
-        ;//previousData.removeAt(0);
+      if (length == 20) {
+        ; //previousData.removeAt(0);
       }
       _chartSeriesController.updateDataSource(
           addedDataIndex: chartData.length - 1, removedDataIndex: 0);
-    }else {
+    } else {
       _chartSeriesController.updateDataSource(
           addedDataIndex: chartData.length - 1);
     }
   }
 
+  void showAlertDialog(context) {
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return MyAlertDialog(
+          pulseRate: pulseRate,
+          time: time,
+        );
+      },
+    );
+  }
+}
 
+class MyAlertDialog extends StatelessWidget {
+  MyAlertDialog({this.pulseRate, this.time});
+  double pulseRate;
+  double time;
 
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Last Pulse rate: ' + pulseRate.toString()),
+          Text('Last time: ' + time.toString()),
+        ],
+      ),
+      actions: [
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(primary: deepPurple),
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Dashboard()), (route) => false);
+
+          },
+          child: Text('OK'),
+        ),
+      ],
+    );
+  }
 }
 
 // class SalesData {
@@ -205,26 +289,26 @@ class LiveData {
   double speed;
 }
 
-List<LiveData> getChartData() {
-  return <LiveData>[
-    LiveData(0, 42),
-    LiveData(1, 47),
-    LiveData(2, 43),
-    LiveData(3, 49),
-    LiveData(4, 54),
-    LiveData(5, 41),
-    LiveData(6, 58),
-    LiveData(7, 51),
-    LiveData(8, 98),
-    LiveData(9, 41),
-    LiveData(10, 53),
-    LiveData(11, 72),
-    LiveData(12, 86),
-    LiveData(13, 52),
-    LiveData(14, 94),
-    LiveData(15, 92),
-    LiveData(16, 86),
-    LiveData(17, 72),
-    LiveData(18, 94)
-  ];
-}
+// List<LiveData> getChartData() {
+//   return <LiveData>[
+//     LiveData(0, 42),
+//     LiveData(1, 47),
+//     LiveData(2, 43),
+//     LiveData(3, 49),
+//     LiveData(4, 54),
+//     LiveData(5, 41),
+//     LiveData(6, 58),
+//     LiveData(7, 51),
+//     LiveData(8, 98),
+//     LiveData(9, 41),
+//     LiveData(10, 53),
+//     LiveData(11, 72),
+//     LiveData(12, 86),
+//     LiveData(13, 52),
+//     LiveData(14, 94),
+//     LiveData(15, 92),
+//     LiveData(16, 86),
+//     LiveData(17, 72),
+//     LiveData(18, 94)
+//   ];
+// }
