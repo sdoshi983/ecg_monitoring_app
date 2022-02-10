@@ -23,7 +23,7 @@ class _DashboardState extends State<Dashboard> {
       appBar: AppBar(
         backgroundColor: themeColor,
         title: Text(
-          'ECG Monitoring',
+          'Dashboard',
         ),
       ),
       body: Center(
@@ -66,7 +66,7 @@ class AccuracyDropDown extends StatefulWidget {
 }
 
 class _AccuracyDropDownState extends State<AccuracyDropDown> {
-  List<int> accuracies = [10, 20, 30, 40, 50, 60, 70, 80, 90];
+  List<int> accuracies = [20, 30, 40, 50, 60, 70, 80, 90];
   @override
   Widget build(BuildContext context) {
     var textTheme = Theme.of(context).textTheme;
