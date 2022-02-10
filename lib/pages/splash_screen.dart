@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ecg_monitor/helpers/constant.dart';
 import 'package:lottie/lottie.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 
 import 'dashboard.dart';
 
@@ -35,6 +36,15 @@ class _SplashScreenState extends State<SplashScreen> {
   //   });
   // }
 
+  Future<void> func() async {
+    await FlutterPlatformAlert.playAlertSound();
+    await FlutterPlatformAlert.showAlert(
+      windowTitle: 'This ia title',
+      text: 'This is body',
+      alertStyle: AlertButtonStyle.yesNoCancel,
+      iconStyle: IconStyle.information,
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
