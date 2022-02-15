@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:ecg_monitor/helpers/constant.dart';
+import 'package:ecg_monitor/pages/after_graph_page.dart';
+import 'package:ecg_monitor/pages/splash_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -42,6 +44,7 @@ class _EcgPlotState extends State<EcgPlot> {
 
   Future<void> getData() async {
     Stream<DatabaseEvent> stream = ref.onValue;
+    // stream.
     stream.listen((event) {
       int intPulse = event.snapshot.value;
       double pulse = intPulse.toDouble();
@@ -162,9 +165,9 @@ class _EcgPlotState extends State<EcgPlot> {
                         ),
                       ],
                     ),
-                    // SizedBox(width: width * 0.13,),
                     Row(
                       children: [
+                        SizedBox(width: width * 0.06,),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(primary: deepPurple),
                           onPressed: () {
@@ -267,8 +270,12 @@ class MyAlertDialog extends StatelessWidget {
         ElevatedButton(
           style: ElevatedButton.styleFrom(primary: deepPurple),
           onPressed: () {
-            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Dashboard()), (route) => false);
-
+            // SystemChrome.setPreferredOrientations([
+            //   DeviceOrientation.portraitUp,
+            //   DeviceOrientation.portraitDown,
+            // ]);
+            // Navigator.of(context).pop();
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => AfterGraphPage()), (route) => false);
           },
           child: Text('OK'),
         ),

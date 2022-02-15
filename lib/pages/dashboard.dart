@@ -3,18 +3,19 @@ import 'package:ecg_monitor/pages/ecg_plot.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_restart/flutter_restart.dart';
 
-double dropDownValue = 10.0;
+double dropDownValue = 20.0;
 class Dashboard extends StatefulWidget {
   @override
   _DashboardState createState() => _DashboardState();
 }
 
 class _DashboardState extends State<Dashboard> {
+
   @override
   Widget build(BuildContext context) {
     var textTheme = Theme.of(context).textTheme;
-
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitDown,
       DeviceOrientation.portraitUp,

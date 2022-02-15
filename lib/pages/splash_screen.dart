@@ -4,6 +4,7 @@ import 'package:ecg_monitor/helpers/constant.dart';
 import 'package:lottie/lottie.dart';
 import 'package:firebase_database/firebase_database.dart';
 // import 'package:flutter_platform_alert/flutter_platform_alert.dart';
+import 'package:flutter_restart/flutter_restart.dart';
 
 import 'dashboard.dart';
 
@@ -20,14 +21,17 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     //set time to load the new page
-    Future.delayed(Duration(seconds: 4), () {
+    Future.delayed(Duration(seconds: 3), () {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => Dashboard()));
     });
     super.initState();
     // func();
-    }
+  }
 
+  Future<void> func() async {
+    var result = await FlutterRestart.restartApp();
+  }
   // Future<void> func() async{
   //   Stream<DatabaseEvent> stream = ref.onValue;
   //   stream.listen((event) {
