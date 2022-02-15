@@ -40,6 +40,7 @@ dev_dependencies:
   syncfusion_flutter_charts: ^19.4.47
 #  flutter_local_notifications: ^9.2.0
 #  flutter_platform_alert: ^0.2.1
+  flutter_restart: ^0.0.3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
