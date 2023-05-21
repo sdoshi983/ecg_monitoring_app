@@ -34,13 +34,15 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  firebase_core: any
+  firebase_core: ^2.12.0
   firebase_database: any
-  firebase_auth: ^3.3.5
   syncfusion_flutter_charts: ^19.4.47
+  cloud_firestore: ^4.7.0
+  shared_preferences: ^2.1.1
+  intl: 0.17.0
+
 #  flutter_local_notifications: ^9.2.0
 #  flutter_platform_alert: ^0.2.1
-  flutter_restart: ^0.0.3
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

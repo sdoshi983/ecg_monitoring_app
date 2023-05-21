@@ -14,8 +14,9 @@ import 'package:firebase_database/firebase_database.dart';
 import 'dashboard.dart';
 
 class EcgPlot extends StatefulWidget {
-  EcgPlot({this.efficiency});
+  EcgPlot({this.efficiency, this.documentId});
   double efficiency;
+  String documentId;
   @override
   _EcgPlotState createState() => _EcgPlotState();
 }
@@ -48,7 +49,6 @@ class _EcgPlotState extends State<EcgPlot> {
     stream.listen((event) {
       int intPulse = event.snapshot.value;
       double pulse = intPulse.toDouble();
-      print("shrey " + pulse.toString());
       updateDataSource(pulse);
       // print("size: " + chartData.length.toString());
       if (isFirstValueSaved == false) {
