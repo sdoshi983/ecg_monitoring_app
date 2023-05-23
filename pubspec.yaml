@@ -40,6 +40,7 @@ dev_dependencies:
   cloud_firestore: ^4.7.0
   shared_preferences: ^2.1.1
   intl: 0.17.0
+  audioplayers: 3.0.1
 
 #  flutter_local_notifications: ^9.2.0
 #  flutter_platform_alert: ^0.2.1

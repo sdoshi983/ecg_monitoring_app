@@ -22,6 +22,7 @@ class _DashboardState extends State<Dashboard> {
   TextEditingController age = TextEditingController(text: '');
   TextEditingController heightController = TextEditingController(text: '');
   TextEditingController weight = TextEditingController(text: '');
+  List<double> accuracies = [20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0];
 
   @override
   Widget build(BuildContext context) {
@@ -188,7 +189,25 @@ class _DashboardState extends State<Dashboard> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text('Select efficiency: ', style: textTheme.subtitle1,),
-                      AccuracyDropDown()
+                      // AccuracyDropDown()
+                      DropdownButton(
+                          value: dropDownValue,
+                          icon: const Icon(Icons.arrow_drop_down_outlined),
+                          elevation: 16,
+                          style: textTheme.subtitle1.copyWith(color: Colors.deepPurple, fontWeight: FontWeight.bold,),
+                          onChanged: (newValue) {
+                            setState(() {
+                              dropDownValue = newValue;
+                            });
+                          },
+                          items: accuracies.map<DropdownMenuItem<double>>(
+                                (accuracy) {
+                              return DropdownMenuItem<double>(
+                                value: accuracy,
+                                child: Text(accuracy.toString()),
+                              );
+                            },
+                          ).toList())
                     ],
                   ),
                   SizedBox(height: height * 0.1,),

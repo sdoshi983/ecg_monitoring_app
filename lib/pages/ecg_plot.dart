@@ -1,8 +1,6 @@
 import 'dart:async';
-
 import 'package:ecg_monitor/helpers/constant.dart';
 import 'package:ecg_monitor/pages/after_graph_page.dart';
-import 'package:ecg_monitor/pages/splash_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -10,8 +8,8 @@ import 'package:flutter/services.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'dart:math' as math;
 import 'package:firebase_database/firebase_database.dart';
-
-import 'dashboard.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 class EcgPlot extends StatefulWidget {
   EcgPlot({this.efficiency, this.documentId});
@@ -23,6 +21,7 @@ class EcgPlot extends StatefulWidget {
 
 class _EcgPlotState extends State<EcgPlot> {
   List<LiveData> chartData = [], previousData = [], nextData = [];
+  List dataToBeStoredInDB = [];
   ChartSeriesController _chartSeriesController;
   TooltipBehavior _tooltipBehavior;
 
@@ -32,6 +31,12 @@ class _EcgPlotState extends State<EcgPlot> {
   bool isFirstValueSaved = false;
   double firstValue = 0.0;
   double pulseRate = 0.0;
+  var random = math.Random();
+  CollectionReference chartDataRef = FirebaseFirestore.instance.collection('chartData');
+
+  final audioPlayer = AudioPlayer();
+  bool isPlaying = false;
+  Timer timer;
 
   @override
   void initState() {
@@ -40,15 +45,19 @@ class _EcgPlotState extends State<EcgPlot> {
     _tooltipBehavior = TooltipBehavior(enable: true);
     getData();
     getPulse();
+    setAlertAudio();
+
+    audioPlayer.onPlayerStateChanged.listen((state){
+      setState(() {
+        isPlaying = state == PlayerState.playing;
+      });
+    });
     super.initState();
   }
 
   Future<void> getData() async {
-    Stream<DatabaseEvent> stream = ref.onValue;
-    // stream.
-    stream.listen((event) {
-      int intPulse = event.snapshot.value;
-      double pulse = intPulse.toDouble();
+    timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      double pulse = random.nextDouble();
       updateDataSource(pulse);
       // print("size: " + chartData.length.toString());
       if (isFirstValueSaved == false) {
@@ -58,9 +67,31 @@ class _EcgPlotState extends State<EcgPlot> {
         if (pulse >= firstValue + firstValue * (widget.efficiency / 10)) {
           // double dPulse = pulse;
           print('alert');
+          audioPlayer.resume();
+        } else {
+          audioPlayer.pause();
         }
       }
     });
+
+
+    // Stream<DatabaseEvent> stream = ref.onValue;
+    // // stream.
+    // stream.listen((event) {
+    //   int intPulse = event.snapshot.value;
+    //   double pulse = intPulse.toDouble();
+    //   updateDataSource(pulse);
+    //   // print("size: " + chartData.length.toString());
+    //   if (isFirstValueSaved == false) {
+    //     firstValue = pulse;
+    //     isFirstValueSaved = true;
+    //   } else {
+    //     if (pulse >= firstValue + firstValue * (widget.efficiency / 10)) {
+    //       // double dPulse = pulse;
+    //       print('alert');
+    //     }
+    //   }
+    // });
   }
 
   Future<void> getPulse() async {
@@ -88,6 +119,11 @@ class _EcgPlotState extends State<EcgPlot> {
     // Timer.periodic(const Duration(seconds: 1), updateDataSource);
   }
 
+  @override
+  void dispose() {
+    timer.cancel();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -152,9 +188,12 @@ class _EcgPlotState extends State<EcgPlot> {
                   children: [
                     Row(
                       children: [
-                        Text(
-                          'PULSE RATE:   ',
-                          style: textTheme.subtitle1,
+                        GestureDetector(
+                          onTap: onOkButtonClicked,
+                          child: Text(
+                            'PULSE RATE:   ',
+                            style: textTheme.subtitle1,
+                          ),
                         ),
                         Text(
                           pulseRate.toString(),
@@ -214,7 +253,8 @@ class _EcgPlotState extends State<EcgPlot> {
 
   double time = 0.0;
   void updateDataSource(double pulse) {
-    // print(time);
+    dataToBeStoredInDB.add({'time': time, 'data': pulse, 'pulse': pulseRate});
+
     if (nextData.length > 0) {
       var data = nextData.removeAt(0);
       chartData.add(data);
@@ -245,17 +285,33 @@ class _EcgPlotState extends State<EcgPlot> {
         return MyAlertDialog(
           pulseRate: pulseRate,
           time: time,
+          onOkButtonClicked: onOkButtonClicked,
         );
       },
     );
   }
+
+  void onOkButtonClicked() async {
+    var temp = await chartDataRef.doc(widget.documentId).get();
+    var data = temp.data() as Map;
+    data['chartData'] = dataToBeStoredInDB;
+    await chartDataRef.doc(widget.documentId).set(data);
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => AfterGraphPage()), (route) => false);
+  }
+
+  void setAlertAudio() async {
+    audioPlayer.setReleaseMode(ReleaseMode.loop);
+    final player = AudioCache(prefix: 'assets/');
+    final url = await player.load('alert.mp3');
+    audioPlayer.setSourceUrl(url.path);
+  }
 }
 
 class MyAlertDialog extends StatelessWidget {
-  MyAlertDialog({this.pulseRate, this.time});
+  MyAlertDialog({this.pulseRate, this.time, this.onOkButtonClicked,});
   double pulseRate;
   double time;
-
+  Function onOkButtonClicked;
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -269,14 +325,7 @@ class MyAlertDialog extends StatelessWidget {
       actions: [
         ElevatedButton(
           style: ElevatedButton.styleFrom(primary: deepPurple),
-          onPressed: () {
-            // SystemChrome.setPreferredOrientations([
-            //   DeviceOrientation.portraitUp,
-            //   DeviceOrientation.portraitDown,
-            // ]);
-            // Navigator.of(context).pop();
-            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => AfterGraphPage()), (route) => false);
-          },
+          onPressed: onOkButtonClicked,
           child: Text('OK'),
         ),
       ],
