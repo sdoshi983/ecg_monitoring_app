@@ -22,6 +22,7 @@ class _DashboardState extends State<Dashboard> {
   TextEditingController age = TextEditingController(text: '');
   TextEditingController heightController = TextEditingController(text: '');
   TextEditingController weight = TextEditingController(text: '');
+  TextEditingController medicalHistory = TextEditingController(text: '');
   List<double> accuracies = [20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0];
 
   @override
@@ -43,7 +44,6 @@ class _DashboardState extends State<Dashboard> {
         actions: [
           GestureDetector(
               onTap: (){
-                Constants.prefs.clear();
                 Navigator.push(context, MaterialPageRoute(builder: (_) => ChartDataPage()));
               },
               child: Icon(Icons.remove_red_eye)),
@@ -185,6 +185,30 @@ class _DashboardState extends State<Dashboard> {
                     ),
                   ),
                   SizedBox(height: 15,),
+                  TextFormField(
+                    controller: medicalHistory,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      labelText: 'Medical History',
+                      floatingLabelStyle: TextStyle(color: deepPurple),
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: deepPurple),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
+                      contentPadding:
+                      EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+                    ),
+                    maxLines: 3,
+                  ),
+                  SizedBox(height: 15,),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -238,15 +262,19 @@ class _DashboardState extends State<Dashboard> {
 
   void onStartButtonClicked() async {
     if(_formKey.currentState.validate()){
+      final createdBy = Constants.prefs.getString('emailId');
+
       final result = await chartData.add({
         'date': DateFormat('yyyy-MM-dd').format(DateTime.now()),
         'name': name.text,
         'age': age.text,
         'height': heightController.text,
         'weight': weight.text,
-        'efficiency': dropDownValue
+        'medicalHistory': medicalHistory.text.isEmpty ? 'No history' : medicalHistory.text,
+        'efficiency': dropDownValue,
+        'createdBy': createdBy,
       });
-      print(result.id);
+
       Navigator.push(context,
           MaterialPageRoute(builder: (context) => EcgPlot(efficiency: dropDownValue, documentId: result.id,)));
     }

@@ -1,4 +1,5 @@
 import 'package:ecg_monitor/helpers/constant.dart';
+import 'package:ecg_monitor/pages/ecg_plot.dart';
 import 'package:flutter/material.dart';
 
 class ChartDataDetailsPage extends StatefulWidget {
@@ -159,7 +160,7 @@ class _ChartDataDetailsPageState extends State<ChartDataDetailsPage> {
                               ),
                             ),
                             Text(
-                              widget.data['height'],
+                              widget.data['height'] + ' cm',
                               style: TextStyle(
                                 fontSize: 15,
                               ),
@@ -177,7 +178,7 @@ class _ChartDataDetailsPageState extends State<ChartDataDetailsPage> {
                               ),
                             ),
                             Text(
-                              widget.data['weight'],
+                              widget.data['weight'] + ' kg',
                               style: TextStyle(
                                 fontSize: 15,
                               ),
@@ -196,13 +197,65 @@ class _ChartDataDetailsPageState extends State<ChartDataDetailsPage> {
                     SizedBox(
                       height: height * 0.02,
                     ),
-                    Text(
-                      'Chart Data:  ',
-                      style: TextStyle(
-                        color: deepPurple,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Medical History:  ',
+                          style: TextStyle(
+                            color: deepPurple,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            widget.data['medicalHistory'],
+                            style: TextStyle(
+                              fontSize: 15,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: height * 0.02,
+                    ),
+                    Divider(
+                      color: deepPurple.withOpacity(0.5),
+                      height: 1,
+                    ),
+                    SizedBox(
+                      height: height * 0.02,
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'Chart Data:  ',
+                          style: TextStyle(
+                            color: deepPurple,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                        const Spacer(),
+                        GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => EcgPlot(fetchDataFromDB: false, chartDataFromDB: widget.data['chartData'],))),
+                          child: Row(
+                            children: [
+                              Text(
+                                'Open in Graph',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                ),
+                              ),
+                              SizedBox(width: width * 0.02,),
+                              Icon(Icons.open_in_new, size: 17,)
+                            ],
+                          ),
+                        )
+                      ],
                     ),
                     SizedBox(
                       height: height * 0.02,

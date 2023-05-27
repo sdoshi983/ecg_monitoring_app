@@ -139,6 +139,8 @@ class _LoginPageState extends State<LoginPage> {
       for(var user in usersList.docs){
         if(user['email'] == email.text && user['password'] == password.text){
           await Constants.prefs.setBool('isLoggedIn', true);
+          await Constants.prefs.setString('emailId', email.text);
+          print(Constants.prefs.containsKey('emailId'));
           Navigator.of(context).pop();
           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => Dashboard()), (route) => false);
           return;

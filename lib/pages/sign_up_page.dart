@@ -223,6 +223,22 @@ class _SignUpPageState extends State<SignUpPage> {
         return;
       }
       showDialogMethod(context, const Center(child: CircularProgressIndicator(),));
+
+      bool userExists = false;
+      var usersList = await users.get();
+      for(var user in usersList.docs){
+        if(user['email'] == email.text){
+          userExists = true;
+          break;
+        }
+      }
+
+      if(userExists){
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('This email id is already in use!')));
+        Navigator.of(context).pop();
+        return;
+      }
+
       await users.add({
         'name': name.text,
         'phone': phone.text,
@@ -230,6 +246,7 @@ class _SignUpPageState extends State<SignUpPage> {
         'password': password.text,
       });
       await Constants.prefs.setBool('isLoggedIn', true);
+      await Constants.prefs.setString('emailId', email.text);
       Navigator.of(context).pop();
       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => Dashboard()), (route) => false);
     }

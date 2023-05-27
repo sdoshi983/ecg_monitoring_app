@@ -178,7 +178,7 @@ class _ChartDataPageState extends State<ChartDataPage> {
                                       ),
                                     ),
                                     Text(
-                                      data[index]['height'],
+                                      data[index]['height'] + ' cm',
                                       style: TextStyle(
                                         fontSize: 15,
                                       ),
@@ -196,7 +196,7 @@ class _ChartDataPageState extends State<ChartDataPage> {
                                       ),
                                     ),
                                     Text(
-                                      data[index]['weight'],
+                                      data[index]['weight'] + ' kg',
                                       style: TextStyle(
                                         fontSize: 15,
                                       ),
@@ -223,8 +223,17 @@ class _ChartDataPageState extends State<ChartDataPage> {
   }
 
   void getChartData() async {
+    final createdBy = Constants.prefs.getString('emailId');
+    print(createdBy);
+    print(Constants.prefs.containsKey('emailId'));
     final result = await chartData.get();
-    data = result.docs;
+    final docs = result.docs;
+    for(final doc in docs){
+      print(doc['createdBy']);
+      if(doc['createdBy'] == createdBy){
+        data.add(doc);
+      }
+    }
     setState(() {
       isLoading = false;
     });

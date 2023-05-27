@@ -12,9 +12,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class EcgPlot extends StatefulWidget {
-  EcgPlot({this.efficiency, this.documentId});
+  EcgPlot({this.efficiency, this.documentId, this.fetchDataFromDB = true, this.chartDataFromDB = const []});
   double efficiency;
   String documentId;
+  bool fetchDataFromDB;
+  List chartDataFromDB;
+
   @override
   _EcgPlotState createState() => _EcgPlotState();
 }
@@ -44,42 +47,23 @@ class _EcgPlotState extends State<EcgPlot> {
     // Timer.periodic(const Duration(seconds: 1), updateDataSource);
     _tooltipBehavior = TooltipBehavior(enable: true);
     getData();
-    getPulse();
-    setAlertAudio();
+    if(widget.fetchDataFromDB){
+      getPulse();
+      setAlertAudio();
 
-    audioPlayer.onPlayerStateChanged.listen((state){
-      setState(() {
-        isPlaying = state == PlayerState.playing;
+      audioPlayer.onPlayerStateChanged.listen((state){
+        setState(() {
+          isPlaying = state == PlayerState.playing;
+        });
       });
-    });
+    }
+
     super.initState();
   }
 
   Future<void> getData() async {
-    timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      double pulse = random.nextDouble();
-      updateDataSource(pulse);
-      // print("size: " + chartData.length.toString());
-      if (isFirstValueSaved == false) {
-        firstValue = pulse;
-        isFirstValueSaved = true;
-      } else {
-        if (pulse >= firstValue + firstValue * (widget.efficiency / 10)) {
-          // double dPulse = pulse;
-          print('alert');
-          audioPlayer.resume();
-        } else {
-          audioPlayer.pause();
-        }
-      }
-    });
-
-
-    // Stream<DatabaseEvent> stream = ref.onValue;
-    // // stream.
-    // stream.listen((event) {
-    //   int intPulse = event.snapshot.value;
-    //   double pulse = intPulse.toDouble();
+    // timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    //   double pulse = random.nextDouble();
     //   updateDataSource(pulse);
     //   // print("size: " + chartData.length.toString());
     //   if (isFirstValueSaved == false) {
@@ -89,9 +73,43 @@ class _EcgPlotState extends State<EcgPlot> {
     //     if (pulse >= firstValue + firstValue * (widget.efficiency / 10)) {
     //       // double dPulse = pulse;
     //       print('alert');
+    //       audioPlayer.resume();
+    //     } else {
+    //       audioPlayer.pause();
     //     }
     //   }
     // });
+
+
+    if(widget.fetchDataFromDB){
+      Stream<DatabaseEvent> stream = ref.onValue;
+      stream.listen((event) {
+        int intPulse = event.snapshot.value;
+        double pulse = intPulse.toDouble();
+        updateDataSource(pulse);
+        if (isFirstValueSaved == false) {
+          firstValue = pulse;
+          isFirstValueSaved = true;
+        } else {
+          if (pulse >= firstValue + firstValue * (widget.efficiency / 10)) {
+            print('ALERT');
+            audioPlayer.resume();
+          } else {
+            audioPlayer.pause();
+          }
+        }
+      });
+    } else {
+      Future.delayed(Duration(seconds: 1), (){
+        final length = widget.chartDataFromDB.length;
+        print(length);
+        pulseRate = widget.chartDataFromDB[length - 1]['pulse'];
+        for(final data in widget.chartDataFromDB){
+          print(data['data']);
+          updateDataSource(data['data']);
+        }
+      });
+    }
   }
 
   Future<void> getPulse() async {
@@ -225,17 +243,17 @@ class _EcgPlotState extends State<EcgPlot> {
                           },
                           child: Icon(Icons.stop_circle),
                         ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(primary: deepPurple),
-                          onPressed: () {
-                            // func();
-                            // onPreviousButtonTapped();
-                          },
-                          child: Icon(Icons.skip_next),
-                        ),
+                        // SizedBox(
+                        //   width: 10,
+                        // ),
+                        // ElevatedButton(
+                        //   style: ElevatedButton.styleFrom(primary: deepPurple),
+                        //   onPressed: () {
+                        //     // func();
+                        //     // onPreviousButtonTapped();
+                        //   },
+                        //   child: Icon(Icons.skip_next),
+                        // ),
                       ],
                     ),
                     Container(
@@ -292,11 +310,15 @@ class _EcgPlotState extends State<EcgPlot> {
   }
 
   void onOkButtonClicked() async {
-    var temp = await chartDataRef.doc(widget.documentId).get();
-    var data = temp.data() as Map;
-    data['chartData'] = dataToBeStoredInDB;
-    await chartDataRef.doc(widget.documentId).set(data);
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => AfterGraphPage()), (route) => false);
+    if(widget.fetchDataFromDB){
+      var temp = await chartDataRef.doc(widget.documentId).get();
+      var data = temp.data() as Map;
+      data['chartData'] = dataToBeStoredInDB;
+      await chartDataRef.doc(widget.documentId).set(data);
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => AfterGraphPage()), (route) => false);
+    } else {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AfterGraphPage(pop: true,)),);
+    }
   }
 
   void setAlertAudio() async {
