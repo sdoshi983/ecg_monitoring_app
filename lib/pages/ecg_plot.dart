@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:ecg_monitor/helpers/constant.dart';
 import 'package:ecg_monitor/pages/after_graph_page.dart';
+import 'package:ecg_monitor/pages/dashboard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -43,8 +44,14 @@ class _EcgPlotState extends State<EcgPlot> {
 
   @override
   void initState() {
+    super.initState();
     // chartData = getChartData();
     // Timer.periodic(const Duration(seconds: 1), updateDataSource);
+    SystemChrome.setPreferredOrientations([
+      // DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
+
     _tooltipBehavior = TooltipBehavior(enable: true);
     getData();
     if(widget.fetchDataFromDB){
@@ -58,7 +65,7 @@ class _EcgPlotState extends State<EcgPlot> {
       });
     }
 
-    super.initState();
+
   }
 
   Future<void> getData() async {
@@ -139,18 +146,27 @@ class _EcgPlotState extends State<EcgPlot> {
 
   @override
   void dispose() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     timer.cancel();
     super.dispose();
   }
+
+  bool firstTime = true;
+
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      // DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
+
     double width = MediaQuery.of(context).size.width;
     var textTheme = Theme.of(context).textTheme;
 
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
+
     return WillPopScope(
       onWillPop: () {
         showAlertDialog(context);
@@ -315,9 +331,15 @@ class _EcgPlotState extends State<EcgPlot> {
       var data = temp.data() as Map;
       data['chartData'] = dataToBeStoredInDB;
       await chartDataRef.doc(widget.documentId).set(data);
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => AfterGraphPage()), (route) => false);
+      Navigator.of(context).pop();
+      Navigator.pop(context);
+      // Navigator.pushReplacement(
+      //     context, MaterialPageRoute(builder: (context) => Dashboard()));
+      // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => AfterGraphPage()), (route) => false);
     } else {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AfterGraphPage(pop: true,)),);
+      Navigator.of(context).pop();
+      Navigator.pop(context);
+      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AfterGraphPage(pop: true,)),);
     }
   }
 

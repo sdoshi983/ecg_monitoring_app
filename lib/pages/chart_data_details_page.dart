@@ -1,6 +1,7 @@
 import 'package:ecg_monitor/helpers/constant.dart';
 import 'package:ecg_monitor/pages/ecg_plot.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ChartDataDetailsPage extends StatefulWidget {
   ChartDataDetailsPage({this.data});
@@ -241,7 +242,19 @@ class _ChartDataDetailsPageState extends State<ChartDataDetailsPage> {
                         const Spacer(),
                         GestureDetector(
                           behavior: HitTestBehavior.translucent,
-                          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => EcgPlot(fetchDataFromDB: false, chartDataFromDB: widget.data['chartData'],))),
+                          onTap: () async {
+                            await SystemChrome.setPreferredOrientations([
+                              DeviceOrientation.portraitUp,
+                              DeviceOrientation.portraitDown,
+                            ]);
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => EcgPlot(fetchDataFromDB: false, chartDataFromDB: widget.data['chartData'],)));
+                            // await SystemChrome.setPreferredOrientations([
+                            //   DeviceOrientation.portraitDown,
+                            //   DeviceOrientation.portraitUp,
+                            //   DeviceOrientation.landscapeRight,
+                            //   DeviceOrientation.landscapeLeft,
+                            // ]);
+                          },
                           child: Row(
                             children: [
                               Text(

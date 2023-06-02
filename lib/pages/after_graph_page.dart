@@ -15,6 +15,13 @@ class AfterGraphPage extends StatefulWidget {
 class _AfterGraphPageState extends State<AfterGraphPage> {
   @override
   void initState() {
+    super.initState();
+    // SystemChrome.setPreferredOrientations([
+    //   DeviceOrientation.portraitDown,
+    //   DeviceOrientation.portraitUp,
+    //   DeviceOrientation.landscapeRight,
+    //   DeviceOrientation.landscapeLeft,
+    // ]);
     //set time to load the new page
     Future.delayed(Duration(milliseconds: 500), () {
       if(widget.pop){
@@ -25,15 +32,16 @@ class _AfterGraphPageState extends State<AfterGraphPage> {
             context, MaterialPageRoute(builder: (context) => Dashboard()));
       }
     });
-    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitDown,
-      DeviceOrientation.portraitUp,
-    ]);
+    // SystemChrome.setPreferredOrientations([
+    //   DeviceOrientation.portraitDown,
+    //   DeviceOrientation.portraitUp,
+    //   DeviceOrientation.landscapeRight,
+    //   DeviceOrientation.landscapeLeft,
+    // ]);
     return Container(
       color: Colors.white,
     );
